@@ -106,7 +106,8 @@
         /* ========================================================== */
         /* ENFORCING STANDARD LAYOUT FOR PRINTING (PRINT-STANDARD-MODE)*/
         /* Ini akan memaksa layout 2 atau 3 kolom saat html2canvas berjalan, 
-           mengabaikan ukuran layar mobile. */
+           mengabaikan ukuran layar mobile yang mungkin terlihat "acak-acakan"
+           agar hasil download selalu rapi dan formal. */
         /* ========================================================== */
 
         /* 1. Paksa 2 Kolom untuk Data Karyawan & Durasi Izin */
@@ -150,7 +151,7 @@
             <div class="header-kop text-center">
                 <div class="title-company">PT. EVEREST ELECTRONIC SALES & SERVICE</div>
                 <div class="text-xs text-gray-700 font-semibold mt-1">AIR CONDITIONER - SPARE PARTS</div>
-                <div class="subtitle-address text-xs mt-1">OFFICE: Jl. KH. Hasyim Ashari No. 144, Pinang-Cipondoh | Telp: (021) 7329480, ...</div>
+                <div class="subtitle-address text-xs mt-1">OFFICE: Jl. KH. Hasyim Ashari No. 144, Pinang-Cipondoh | Telp: (021) 7329480, 73453297, 73440020-Fax: (021) 73440130</div>
             </div>
             
             <!-- Judul Permohonan Izin -->
@@ -161,6 +162,7 @@
                 <p class="text-sm text-gray-700 mb-4">Yang Bertanda Tangan dibawah ini :</p>
 
                 <!-- Bagian Data Karyawan -->
+                <!-- Grid ini akan dipaksa 2 kolom di mode cetak (.print-standard-mode) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 data-karyawan-grid">
                     <div class="flex flex-col">
                         <label for="nama" class="text-sm font-medium text-gray-700 required-label">Nama</label>
@@ -182,7 +184,7 @@
 
                 <!-- Bagian Jenis Izin -->
                 <h2 class="text-lg sm:text-xl font-semibold mb-4 pt-4 text-blue-700 border-b pb-2" id="jenis-izin-heading">Mengajukan Permohonan Izin (Pilih satu *)</h2>
-                <!-- RESPONSIVE: 2 kolom di HP, 3 kolom di Desktop -->
+                <!-- RESPONSIVE: 2 kolom di HP, 3 kolom di Desktop. Dipaksa 3 kolom di mode cetak. -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4" id="jenis-izin-options">
                     <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Menikah" class="text-blue-600 focus:ring-blue-500">
@@ -277,6 +279,7 @@
             
             <!-- BAGIAN TANDA TANGAN -->
             <div id="signature-section" class="pt-8 mt-6 border-t border-gray-300">
+                 <!-- Grid ini akan dipaksa 3 kolom di mode cetak (.print-standard-mode) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-sm font-medium text-gray-700">
                     
                     <!-- Kolom 1: Diajukan Oleh (TANDA TANGAN KARYAWAN) -->
@@ -678,7 +681,7 @@
         });
 
 
-        // --- Logika Unduh Formulir sebagai PNG (Diperbarui untuk Layout Standar) ---
+        // --- Logika Unduh Formulir sebagai PNG (Diperbarui untuk Layout Standar dan Skala Kualitas Tinggi) ---
 
         // Fungsi untuk Mengunduh Formulir sebagai PNG 
         async function downloadFormAsImage() {
@@ -729,6 +732,7 @@
             
             // =========================================================
             // *** PENTING: Terapkan Layout Standar Cetak (800px) ***
+            // Ini yang memastikan hasil download selalu rapi dan konsisten
             // =========================================================
             const originalMaxWidth = container.style.maxWidth;
             const originalPadding = container.style.padding;
@@ -745,7 +749,8 @@
 
             try {
                 const canvas = await html2canvas(container, {
-                    scale: 2, // Kualitas gambar lebih tinggi
+                    // NILAI SCALE TELAH DITINGKATKAN MENJADI 4 UNTUK RESOLUSI TINGGI (HIGH DPI)
+                    scale: 4, 
                     useCORS: true,
                     allowTaint: true, 
                     onclone: (clonedDocument) => {

@@ -97,6 +97,31 @@
             border-radius: 0.5rem;
             border: 1px solid #d1d5db;
         }
+        /* Style untuk Modal Notifikasi */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            max-width: 400px;
+            width: 90%;
+            animation: fadeIn 0.3s ease-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
@@ -115,8 +140,7 @@
             
             <!-- KOP SURAT -->
             <div class="header-kop text-center">
-                <div class="title-company">PT. EVEREST ELECTRONIC</div>
-                <div class="text-xs text-gray-700 font-semibold mt-1">SALES & SERVICES</div>
+                <div class="title-company">PT. EVEREST ELECTRONIC SALES & SERVICE</div>
                 <div class="text-xs text-gray-700 font-semibold mt-1">AIR CONDITIONER - SPARE PARTS</div>
                 <div class="subtitle-address text-xs mt-1">OFFICE: Jl. KH. Hasyim Ashari No. 144, Pinang-Cipondoh | Telp: (021) 7329480, 73453297, 73440020 - Fax: (021) 73440130</div>
             </div>
@@ -296,9 +320,10 @@
             <div id="message-box" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4" id="action-buttons-container">
-                <button type="button" id="submit-button" class="py-3 px-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center">
-                    <i class="ph ph-paper-plane text-xl mr-2"></i>
-                    Ajukan Permohonan Izin (Simpan Data)
+                <!-- Tombol ini sekarang menggunakan fungsi dummyWarning() -->
+                <button type="button" id="submit-button" class="py-3 px-4 bg-gray-500 text-white font-bold rounded-lg hover:bg-gray-600 transition duration-300 focus:outline-none focus:ring-4 focus:ring-gray-500 focus:ring-opacity-50 flex items-center justify-center cursor-not-allowed" disabled>
+                    <i class="ph ph-warning-octagon text-xl mr-2"></i>
+                    Ajukan Permohonan Izin (Nonaktif Sementara)
                 </button>
                 <button type="button" id="download-button" class="py-3 px-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center">
                     <i class="ph ph-image-square text-xl mr-2"></i>
@@ -308,35 +333,49 @@
         </div>
         <!-- Akhir dari printable-form-container -->
 
-        <!-- Daftar Permohonan yang Sudah Diajukan (Real-time) -->
-        <div class="max-w-4xl mx-auto mt-10 p-6 sm:p-8 bg-white rounded-xl form-card">
+        <!-- Daftar Permohonan yang Sudah Diajukan (Real-time) - DISEMBUNYIKAN SEMENTARA -->
+        <div class="max-w-4xl mx-auto mt-10 p-6 sm:p-8 bg-white rounded-xl form-card hidden">
             <h2 class="text-2xl font-semibold mb-6 text-green-700 border-b pb-2 flex items-center">
                 <i class="ph ph-list-checks text-2xl mr-2"></i>
                 Riwayat Permohonan Izin (Real-Time)
             </h2>
             <div id="requests-list" class="space-y-4">
                 <p id="loading-requests" class="text-center text-gray-500">Memuat data permohonan...</p>
-                <!-- Permintaan akan dimasukkan di sini oleh JS -->
             </div>
         </div>
     </div>
+    
+    <!-- Modal Notifikasi Kustom -->
+    <div id="custom-modal" class="modal-overlay hidden">
+        <div class="modal-content text-center shadow-2xl">
+            <h3 class="text-2xl font-extrabold text-red-600 mb-4 flex items-center justify-center">
+                <i class="ph ph-exclamation-mark-circle text-3xl mr-2"></i>
+                PERHATIAN!!
+            </h3>
+            <p class="text-gray-700 text-lg mb-6">
+                Sedang Dalam Tahap Perbaikan.
+            </p>
+            <button id="close-modal-button" class="w-full py-2 bg-red-600 text-white font-bold rounded-lg hover:bg-red-700 transition">
+                Tutup
+            </button>
+        </div>
+    </div>
+
 
     <!-- Firebase SDKs & Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, setLogLevel, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Atur level log untuk melihat error Firebase di konsol
-        setLogLevel('Debug');
+        // Import Firebase SDKs (tetap ada, namun tidak dipanggil untuk inisialisasi dan submit)
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        // import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, setLogLevel, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Variabel global dari lingkungan Canvas (WAJIB DIGUNAKAN)
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-        let db;
-        let auth;
+        let db; // Dibiarkan kosong, tidak digunakan
+        let auth; // Dibiarkan kosong, tidak digunakan
         let userId = null;
         let isAuthReady = false;
 
@@ -349,6 +388,8 @@
         const DOWNLOAD_BUTTON = document.getElementById('download-button');
         const SUBMIT_BUTTON = document.getElementById('submit-button');
         const ACTION_BUTTONS_CONTAINER = document.getElementById('action-buttons-container');
+        const CUSTOM_MODAL = document.getElementById('custom-modal');
+        const CLOSE_MODAL_BUTTON = document.getElementById('close-modal-button');
 
         // Daftar field yang wajib diisi (hanya data Karyawan)
         const REQUIRED_FIELDS = [
@@ -392,7 +433,7 @@
             return isNaN(diffDays) || diffDays <= 0 ? 0 : diffDays;
         }
 
-        // --- Fitur Baru: Menonaktifkan Tanggal Lampau ---
+        // --- Fitur: Menonaktifkan Tanggal Lampau ---
         /**
          * Mengatur atribut 'min' pada input tanggal menjadi tanggal hari ini (tidak boleh tanggal lampau).
          */
@@ -485,8 +526,8 @@
         }
 
         // --- Logika Kanvas Tanda Tangan (Reusable Function) ---
+        let sigPads = {}; // Objek untuk menyimpan referensi kanvas
 
-        // Fungsi inisialisasi untuk satu kanvas
         function initSignaturePad(canvasId, inputId, clearButtonId) {
             const CANVAS = document.getElementById(canvasId);
             const INPUT = document.getElementById(inputId);
@@ -497,10 +538,8 @@
             let lastX = 0;
             let lastY = 0;
 
-            // Setup Awal
             function setupCanvas() {
-                // Dimensi sudah diatur di HTML: 150x150
-                CTX.strokeStyle = '#000000'; // Hitam
+                CTX.strokeStyle = '#000000'; 
                 CTX.lineWidth = 3; 
                 CTX.lineJoin = 'round';
                 CTX.lineCap = 'round';
@@ -589,220 +628,59 @@
 
             CLEAR_BUTTON.addEventListener('click', clearSignature);
             
-            // Mengembalikan object dengan method clear, canvas, input, dan tombol clear
             return {
                 clear: clearSignature,
                 canvasElement: CANVAS,
                 inputElement: INPUT,
-                clearButtonElement: CLEAR_BUTTON // Mengembalikan elemen tombol untuk diakses di fungsi lain
+                clearButtonElement: CLEAR_BUTTON
             };
         }
         
-        let sigPads = {}; 
-
         function initCanvasListeners() {
-            // Inisialisasi Karyawan
             sigPads.karyawan = initSignaturePad(
                 'signature-canvas-karyawan', 
                 'signature_data_karyawan', 
                 'clear-signature-karyawan'
             );
-            // Inisialisasi Management
             sigPads.management = initSignaturePad(
                 'signature-canvas-management', 
                 'signature_data_management', 
                 'clear-signature-management'
             );
-            // Inisialisasi Atasan
             sigPads.atasan = initSignaturePad(
                 'signature-canvas-atasan', 
                 'signature_data_atasan', 
                 'clear-signature-atasan'
             );
         }
-        // Panggil inisialisasi kanvas
         initCanvasListeners();
 
-        // --- Logika Utama Aplikasi Firebase ---
-        
-        async function initializeAppAndAuth() {
-            try {
-                if (Object.keys(firebaseConfig).length === 0) {
-                    showMessage("Kesalahan: Konfigurasi Firebase tidak ditemukan.", 'error');
-                    return;
-                }
 
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                    } else if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                        userId = auth.currentUser.uid;
-                    } else {
-                        await signInAnonymously(auth);
-                        userId = auth.currentUser.uid;
-                    }
-                    isAuthReady = true;
-                    USER_INFO.innerHTML = `Terhubung sebagai ID Pengguna: <span class="font-mono text-blue-700">${userId}</span>`;
-                    
-                    setupRealtimeListener(); 
-                });
-
-            } catch (error) {
-                console.error("Kesalahan inisialisasi Firebase/Otentikasi:", error);
-                showMessage("Gagal menginisialisasi aplikasi. Cek konsol untuk detail.", 'error');
-            }
-        }
-
-        // Fungsi untuk menangani pengiriman formulir
-        async function handleSubmit() {
-            if (!isAuthReady || !db) {
-                showMessage("Sistem belum siap. Tunggu sebentar dan coba lagi.", 'error');
-                return;
-            }
-            
+        // --- FUNGSI DUMMY PENGGANTI SUBMIT ASLI ---
+        function dummyWarning(event) {
+            // Memastikan formulir divalidasi terlebih dahulu
             if (!validateForm()) {
                  showMessage("Ada kolom wajib (*) yang belum diisi, termasuk Tanda Tangan Karyawan. Harap periksa notifikasi merah di setiap kolom.", 'error');
                  return;
             }
-
-            const formData = new FormData(FORM);
-            const jenisIzin = formData.get('jenis_izin');
-            const alasanLain = jenisIzin === 'Lain-Lain' ? formData.get('alasan_lain') : '';
             
-            const leaveData = {
-                // Data Karyawan
-                nama: formData.get('nama'),
-                nik: formData.get('nik'),
-                departemen: formData.get('departemen'),
-                jabatan: formData.get('jabatan'),
-                
-                // Jenis Izin
-                jenis_izin: jenisIzin,
-                alasan_lain: alasanLain, 
-                
-                // Durasi Izin
-                tanggal_mulai: formData.get('tanggal_mulai'),
-                tanggal_selesai: formData.get('tanggal_selesai'),
-                lama_izin_hari: getDayDifference(formData.get('tanggal_mulai'), formData.get('tanggal_selesai')),
-                
-                // Pengganti (Opsional)
-                pengganti_nama: formData.get('pengganti_nama'), 
-                pengganti_jabatan: formData.get('pengganti_jabatan'), 
-                
-                // Kontak Darurat
-                alamat: formData.get('alamat'),
-                no_telp: formData.get('no_telp'),
-                
-                // Tanda Tangan Karyawan (Hanya yang ini yang wajib)
-                tanda_tangan_karyawan: formData.get('signature_data_karyawan'),
-                tanda_tangan_management: formData.get('signature_data_management'),
-                tanda_tangan_atasan: formData.get('signature_data_atasan'),
-
-                // Metadata
-                tanggal_diajukan: serverTimestamp(),
-                diajukan_oleh_user_id: userId,
-                status_permohonan: 'Pending (Menunggu Persetujuan Atasan)',
-            };
-
-            SUBMIT_BUTTON.disabled = true;
-            SUBMIT_BUTTON.innerHTML = '<i class="ph ph-circle-notch animate-spin text-xl mr-2"></i> Mengirim...';
-
-            try {
-                const collectionPath = `artifacts/${appId}/public/data/leave_requests`;
-                await addDoc(collection(db, collectionPath), leaveData);
-
-                showMessage("Permohonan izin berhasil diajukan!", 'success');
-                FORM.reset();
-                document.getElementById('lama_izin').value = '';
-                LAIN_LAIN_CONTAINER.classList.add('hidden');
-                
-                // Bersihkan semua kanvas setelah submit
-                Object.values(sigPads).forEach(pad => pad.clear()); 
-            } catch (error) {
-                console.error("Kesalahan saat menyimpan data:", error);
-                showMessage("Gagal mengajukan permohonan. Error: " + error.message, 'error');
-            } finally {
-                SUBMIT_BUTTON.disabled = false;
-                SUBMIT_BUTTON.innerHTML = '<i class="ph ph-paper-plane text-xl mr-2"></i> Ajukan Permohonan Izin (Simpan Data)';
+            // Tampilkan modal notifikasi
+            CUSTOM_MODAL.classList.remove('hidden');
+        }
+        
+        // Fungsi untuk menutup modal
+        function closeModal() {
+            CUSTOM_MODAL.classList.add('hidden');
+        }
+        
+        // Event listener untuk tombol tutup modal
+        CLOSE_MODAL_BUTTON.addEventListener('click', closeModal);
+        CUSTOM_MODAL.addEventListener('click', (e) => {
+            if (e.target === CUSTOM_MODAL) {
+                closeModal();
             }
-        }
+        });
 
-        // Fungsi untuk membuat elemen daftar permohonan
-        function createRequestElement(request) {
-            const element = document.createElement('div');
-            const statusColor = request.status_permohonan.includes('Pending') ? 'bg-yellow-100 text-yellow-800'
-                               : request.status_permohonan.includes('Approved') ? 'bg-green-100 text-green-800'
-                               : 'bg-red-100 text-red-800';
-
-            const formattedDate = request.tanggal_diajukan ? new Date(request.tanggal_diajukan.seconds * 1000).toLocaleDateString('id-ID', {
-                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
-            }) : 'Baru saja';
-
-            const detailIzin = request.jenis_izin === 'Lain-Lain' && request.alasan_lain
-                ? `Lain-Lain: ${request.alasan_lain}`
-                : request.jenis_izin;
-
-            element.className = 'p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150';
-            element.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <h4 class="text-lg font-bold text-gray-800">${request.nama} (${request.nik})</h4>
-                    <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusColor}">
-                        ${request.status_permohonan}
-                    </span>
-                </div>
-                <p class="text-sm text-gray-600 mb-1">
-                    <i class="ph ph-calendar-check text-blue-500 mr-1"></i>
-                    <strong>${detailIzin}</strong> dari ${request.tanggal_mulai} s/d ${request.tanggal_selesai} (${request.lama_izin_hari} Hari)
-                </p>
-                <p class="text-xs text-gray-500">
-                    <i class="ph ph-clock text-gray-500 mr-1"></i>
-                    Diajukan pada: ${formattedDate}
-                </p>
-            `;
-            return element;
-        }
-
-        // Fungsi untuk mendengarkan perubahan data secara real-time (onSnapshot)
-        function setupRealtimeListener() {
-            if (!isAuthReady || !db) return;
-
-            const collectionPath = `artifacts/${appId}/public/data/leave_requests`;
-            const q = query(collection(db, collectionPath), orderBy("tanggal_diajukan", "desc"));
-            
-            onSnapshot(q, (querySnapshot) => {
-                const requests = [];
-                querySnapshot.forEach((doc) => {
-                    requests.push({ id: doc.id, ...doc.data() });
-                });
-
-                // NOTE: Pengurutan di Firestore sudah dilakukan, tapi kita tambahkan 
-                // pengurutan di client untuk memastikan data yang tidak memiliki timestamp
-                // (misalnya data yang baru dibuat) muncul di atas.
-                requests.sort((a, b) => {
-                    if (a.tanggal_diajukan && b.tanggal_diajukan) {
-                        return b.tanggal_diajukan.seconds - a.tanggal_diajukan.seconds;
-                    }
-                    return 0;
-                });
-
-                REQUESTS_LIST.innerHTML = '';
-                if (requests.length === 0) {
-                    REQUESTS_LIST.innerHTML = '<p class="text-center text-gray-500 py-4">Belum ada permohonan yang diajukan.</p>';
-                } else {
-                    requests.forEach(request => {
-                        REQUESTS_LIST.appendChild(createRequestElement(request));
-                    });
-                }
-            }, (error) => {
-                console.error("Kesalahan mendengarkan data real-time:", error);
-                showMessage("Gagal memuat riwayat permohonan. Cek aturan keamanan Firestore.", 'error');
-            });
-        }
 
         // --- Logika Tambahan ---
 
@@ -816,7 +694,6 @@
             
             const container = document.getElementById('printable-form-container');
             
-            // Siapkan array untuk menampung elemen pengganti tanda tangan
             const sigReplacements = []; 
             
             // 1. Ganti semua kanvas dengan elemen IMG (hanya untuk proses capture)
@@ -834,7 +711,6 @@
                 // Sembunyikan kanvas dan tombol clear, lalu masukkan IMG
                 pad.canvasElement.style.display = 'none';
                 
-                // Pastikan clearButtonElement ada sebelum mengakses .style
                 if (pad.clearButtonElement) {
                     pad.clearButtonElement.style.display = 'none';
                 }
@@ -844,7 +720,7 @@
                 sigReplacements.push({ 
                     canvasContainer, 
                     canvasElement: pad.canvasElement, 
-                    clearButton: pad.clearButtonElement, // Sekarang properti ini sudah terdefinisi
+                    clearButton: pad.clearButtonElement, 
                     placeholder: sigPlaceholder 
                 });
             });
@@ -869,8 +745,9 @@
                         clonedDocument.getElementById('action-buttons-container').style.display = 'none';
                         clonedDocument.getElementById('user-info').style.display = 'none';
                         clonedDocument.getElementById('message-box').style.display = 'none';
-                        const requestsList = clonedDocument.getElementById('requests-list');
-                        if (requestsList) { requestsList.style.display = 'none'; }
+                        // Menyembunyikan riwayat permohonan di cloned document
+                        const requestsListContainer = clonedDocument.querySelector('.max-w-4xl.mx-auto.mt-10');
+                        if (requestsListContainer) { requestsListContainer.style.display = 'none'; }
                     }
                 });
 
@@ -896,7 +773,6 @@
                     rep.canvasContainer.removeChild(rep.placeholder);
                     rep.canvasElement.style.display = 'block';
                     
-                    // Pastikan rep.clearButton ada sebelum mengakses .style
                     if (rep.clearButton) {
                         rep.clearButton.style.display = 'flex'; 
                     }
@@ -910,8 +786,6 @@
             }
         }
         
-        // --- Event Listeners Tambahan ---
-
         // Menampilkan/Menyembunyikan Kolom Alasan Lain-Lain
         function toggleLainLainInput() {
             const selectedRadio = document.querySelector('input[name="jenis_izin"]:checked');
@@ -938,11 +812,22 @@
             }
         }
 
-        // Inisialisasi Aplikasi dan Event Listeners
+        // --- Inisialisasi dan Event Listeners ---
+        // Catatan: initializeAppAndAuth() dan setupRealtimeListener() DINONAKTIFKAN SEMENTARA
+        
+        // Fungsi inisialisasi dummy untuk tampilan
+        function initializeAppAndAuth() {
+            userId = 'Sistem-Perbaikan';
+            USER_INFO.innerHTML = `Terhubung sebagai ID Pengguna: <span class="font-mono text-gray-700">${userId}</span> (Mode Perbaikan)`;
+            isAuthReady = true;
+        }
+
         initializeAppAndAuth();
         setMinDateForLeave(); // Panggil fungsi untuk menetapkan tanggal minimum hari ini
         
-        SUBMIT_BUTTON.addEventListener('click', handleSubmit);
+        // GANTI: Menghubungkan tombol submit ke fungsi dummyWarning()
+        SUBMIT_BUTTON.addEventListener('click', dummyWarning);
+        
         DOWNLOAD_BUTTON.addEventListener('click', downloadFormAsImage);
         
         document.getElementById('tanggal_mulai').addEventListener('change', updateLamaIzin);

@@ -23,7 +23,7 @@
         /* Container utama: Dibatasi lebarnya untuk konsistensi hasil download */
         #printable-form-container {
             /* STANDAR UNTUK HASIL DOWNLOAD (MAX 800PX) */
-            max-width: 100%; /* Default responsive */
+            max-width: 100%; /* Default responsive saat user input */
             margin-left: auto;
             margin-right: auto;
             background-color: white; 
@@ -105,9 +105,8 @@
         
         /* ========================================================== */
         /* ENFORCING STANDARD LAYOUT FOR PRINTING (PRINT-STANDARD-MODE)*/
-        /* Ini akan memaksa layout 2 atau 3 kolom saat html2canvas berjalan, 
-           mengabaikan ukuran layar mobile yang mungkin terlihat "acak-acakan"
-           agar hasil download selalu rapi dan formal. */
+        /* Kelas ini ditambahkan dan dihapus secara instan oleh JS saat 
+           tombol 'Unduh' ditekan, memaksa tampilan Desktop/Cetak. */
         /* ========================================================== */
 
         /* 1. Paksa 2 Kolom untuk Data Karyawan & Durasi Izin */
@@ -731,18 +730,18 @@
             MESSAGE_BOX.style.display = 'none';
             
             // =========================================================
-            // *** PENTING: Terapkan Layout Standar Cetak (800px) ***
+            // *** MENGAKTIFKAN OTOMATIS MODE DESKTOP UNTUK CAPTURE ***
             // Ini yang memastikan hasil download selalu rapi dan konsisten
             // =========================================================
             const originalMaxWidth = container.style.maxWidth;
             const originalPadding = container.style.padding;
             
-            // 1. Enforce max-width 800px and consistent padding for standard look
+            // 1. Paksa max-width 800px dan padding konsisten
             container.style.maxWidth = '800px'; 
             container.style.padding = '2.5rem'; 
             container.classList.add('shadow-none'); 
             
-            // 2. Terapkan kelas override untuk memaksa layout multi-kolom (Fixes Mobile Layout Issue)
+            // 2. Terapkan kelas override untuk memaksa layout multi-kolom (Mengubah layout HP ke Desktop)
             container.classList.add('print-standard-mode');
 
             showMessage("Memproses formulir menjadi gambar...", 'info');
@@ -796,7 +795,7 @@
                 MESSAGE_BOX.style.display = 'block';
                 
                 // =========================================================
-                // *** PENTING: Kembalikan ke Mode Responsif ***
+                // *** PENTING: Kembalikan ke Mode Responsif (Mobile View) ***
                 // =========================================================
                 container.style.maxWidth = originalMaxWidth;
                 container.style.padding = originalPadding;

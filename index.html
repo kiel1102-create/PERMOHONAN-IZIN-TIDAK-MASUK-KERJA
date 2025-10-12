@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permohonan Izin Tidak Masuk Kerja</title>
+    <!-- Memuat Tailwind CSS untuk styling modern dan responsif -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Memuat library Phosphor Icons untuk ikon -->
+    <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/dist/umd/phosphor-icons.js"></script>
+    <!-- Memuat html2canvas untuk konversi HTML ke gambar (JPEG/PNG) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* Mengatur font agar terlihat lebih profesional */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+        }
+        /* Styling tambahan untuk form */
+        .form-card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        /* Styling untuk container yang akan diubah menjadi gambar */
+        #printable-form-container {
+            /* Pastikan background putih saat dicapture */
+            background-color: white; 
+        }
+        /* MENGGANTI (Wajib Diisi) DENGAN TANDA BINTANG (*) */
+        .required-label::after {
+            content: " *"; 
+            color: #ef4444; /* Merah */
+            font-size: 1.2rem; /* Ukuran lebih besar agar menonjol */
+            font-weight: 700; 
+            margin-left: 3px;
+            line-height: 0;
+            vertical-align: middle;
+        }
+        /* Styling kustom untuk notifikasi error validasi (sesuai permintaan, tebal) */
+        .validation-error {
+            color: #ef4444;
+            font-size: 0.85rem;
+            margin-top: 4px;
+            font-weight: bold; 
+        }
+        .input-error {
+            border-color: #ef4444 !important;
+        }
+        /* Styling untuk Kop Surat */
+        .header-kop {
+            border-bottom: 3px solid #000;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+        .header-kop div {
+            line-height: 1.2;
+        }
+        .header-kop .title-company {
+            font-size: 1.5rem; /* Ukuran PT. */
+            font-weight: 900;
+        }
+        .header-kop .subtitle-address {
+            font-size: 0.8rem;
+            color: #4b5563;
+        }
+        /* Styling untuk Kanvas Tanda Tangan Digital */
+        .signature-canvas {
+            border: 1px solid #10b981; /* Border hijau untuk kanvas aktif */
+            background-color: white;
+            touch-action: none; /* Mencegah scrolling pada perangkat sentuh saat menggambar */
+        }
+        .signature-canvas-container {
+            border-radius: 0.5rem;
+            overflow: hidden;
+            margin-top: 4px;
+            position: relative;
+            /* Memastikan container kanvas memiliki lebar yang sesuai */
+            max-width: 150px; 
+            height: 150px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* Mengatur agar semua elemen tombol hapus terlihat bagus */
+        .clear-sig-btn {
+             margin-left: auto;
+             margin-right: auto;
+             max-width: 150px;
+             display: flex;
+             justify-content: center;
+        }
+        /* Style untuk Date Picker agar lebih responsif */
+        input[type="date"] {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="min-h-screen p-4 sm:p-8">
+        <!-- Header Aplikasi (Hanya untuk tampilan web, tidak termasuk capture) -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-blue-800">APLIKASI PERMOHONAN IZIN</h1>
+            <div id="user-info" class="mt-4 text-sm text-gray-500">
+                <!-- User ID akan ditampilkan di sini setelah otentikasi -->
+            </div>
+        </header>
+
+        <!-- Container utama formulir (Ini akan di-capture untuk JPEG/PNG) -->
+        <div id="printable-form-container" class="max-w-4xl mx-auto bg-white rounded-xl overflow-hidden form-card p-6 sm:p-10">
+            
+            <!-- KOP SURAT -->
+            <div class="header-kop text-center">
+                <div class="title-company">PT. EVEREST ELECTRONIC SALES & SERVICE</div>
+                <div class="text-xs text-gray-700 font-semibold mt-1">SALES & SERVICES</div>
+                <div class="text-xs text-gray-700 font-semibold mt-1">AIR CONDITIONER - SPARE PARTS</div>
+                <div class="subtitle-address text-xs mt-1">OFFICE: Jl. KH. Hasyim Ashari No. 144, Pinang-Cipondoh | Telp: (021) 7329480, 73453297, 73440020 - Fax: (021) 73440130</div>
+            </div>
+            
+            <!-- Judul Permohonan Izin (Sekarang di tengah) -->
+            <h2 class="text-2xl font-bold mb-6 text-blue-800 text-center border-b pb-2">PERMOHONAN IZIN TIDAK MASUK KERJA</h2>
+
+            <form id="leave-request-form" class="space-y-6" novalidate>
+                <!-- Keterangan pembuka -->
+                <p class="text-sm text-gray-700 mb-4">Yang Bertanda Tangan dibawah ini :</p>
+
+                <!-- Bagian Data Karyawan -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <label for="nama" class="text-sm font-medium text-gray-700 required-label">Nama</label>
+                        <input type="text" id="nama" name="nama" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="nik" class="text-sm font-medium text-gray-700 required-label">NIK</label>
+                        <input type="text" id="nik" name="nik" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="departemen" class="text-sm font-medium text-gray-700 required-label">Departemen</label>
+                        <input type="text" id="departemen" name="departemen" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="jabatan" class="text-sm font-medium text-gray-700 required-label">Jabatan</label>
+                        <input type="text" id="jabatan" name="jabatan" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Bagian Jenis Izin -->
+                <h2 class="text-xl font-semibold mb-4 pt-4 text-blue-700 border-b pb-2" id="jenis-izin-heading">Mengajukan Permohonan Izin (Pilih satu *)</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="jenis-izin-options">
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Menikah" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Menikah</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Menikahkan Anak" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Menikahkan Anak</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Menyunatkan/Membaptis Anak" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Menyunatkan / Membaptis Anak</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Istri Melahirkan/Keguguran" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Istri Melahirkan / Keguguran</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Melahirkan" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Melahirkan</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Keguguran" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Keguguran</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Kematian orang tua/mertua keluarga serumah" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Kematian orang tua / mertua keluarga serumah</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                        <input type="radio" name="jenis_izin" value="Upacara Keagamaan" class="text-blue-600 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-700">Upacara Keagamaan</span>
+                    </label>
+                    <label class="flex items-center space-x-2 p-3 bg-red-50 rounded-lg cursor-pointer hover:bg-red-100 transition">
+                        <input type="radio" name="jenis_izin" value="Lain-Lain" class="text-red-600 focus:ring-red-500" id="radio-lain-lain">
+                        <span class="text-sm font-medium text-red-700">Lain - Lain</span>
+                    </label>
+                </div>
+
+                <!-- Kolom Tambahan untuk "Lain - Lain" (Muncul Kondisional) -->
+                <div id="lain-lain-container" class="hidden flex flex-col pt-2 border-t border-red-200">
+                    <label for="alasan_lain" class="text-sm font-medium text-red-700 required-label">Alasan Izin Lain-Lain</label>
+                    <textarea id="alasan_lain" name="alasan_lain" rows="2" placeholder="Jelaskan alasan izin Anda secara rinci" class="mt-1 p-3 border border-red-300 rounded-lg focus:ring-red-500 focus:border-red-500"></textarea>
+                </div>
+
+                <!-- Bagian Durasi Izin -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                    <div class="flex flex-col">
+                        <label for="tanggal_mulai" class="text-sm font-medium text-gray-700 required-label">Tanggal Izin Mulai</label>
+                        <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="tanggal_selesai" class="text-sm font-medium text-gray-700 required-label">Tanggal Izin Selesai</label>
+                        <input type="date" id="tanggal_selesai" name="tanggal_selesai" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="lama_izin" class="text-sm font-medium text-gray-700">Lama Izin (Hari)</label>
+                        <input type="number" id="lama_izin" name="lama_izin" placeholder="Otomatis terhitung" readonly class="mt-1 p-3 border border-gray-300 rounded-lg bg-gray-100 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Bagian Pengganti Karyawan dan Kontak -->
+                <h3 class="text-xl font-semibold mb-4 pt-4 text-blue-700 border-t pb-2">Pengganti Karyawan & Kontak Darurat</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex flex-col">
+                        <label for="pengganti_nama" class="text-sm font-medium text-gray-700">Nama Pengganti Karyawan (Opsional)</label>
+                        <input type="text" id="pengganti_nama" name="pengganti_nama" placeholder="Diisi jika diperlukan" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="pengganti_jabatan" class="text-sm font-medium text-gray-700">Jabatan Pengganti (Opsional)</label>
+                        <input type="text" id="pengganti_jabatan" name="pengganti_jabatan" placeholder="Diisi jika diperlukan" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex flex-col md:col-span-2">
+                        <label for="alamat" class="text-sm font-medium text-gray-700 required-label">Alamat (Apabila Diperlukan saya dapat dihubungi)</label>
+                        <textarea id="alamat" name="alamat" rows="2" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    </div>
+                    <div class="flex flex-col">
+                        <label for="no_telp" class="text-sm font-medium text-gray-700 required-label">No. Telp</label>
+                        <input type="tel" id="no_telp" name="no_telp" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                </div>
+                
+                <!-- Input tersembunyi untuk menyimpan data tanda tangan (base64) -->
+                <input type="hidden" id="signature_data_karyawan" name="signature_data_karyawan" value="">
+                <input type="hidden" id="signature_data_management" name="signature_data_management" value="">
+                <input type="hidden" id="signature_data_atasan" name="signature_data_atasan" value="">
+                
+            </form>
+            
+            <!-- BAGIAN TANDA TANGAN -->
+            <div id="signature-section" class="pt-8 mt-6 border-t border-gray-300">
+                <div class="grid grid-cols-3 gap-6 text-center text-sm font-medium text-gray-700">
+                    
+                    <!-- Kolom 1: Diajukan Oleh (TANDA TANGAN KARYAWAN) -->
+                    <div>
+                        <p class="mb-1">Diajukan Oleh <span class="text-red-600 font-bold">*</span></p>
+                        <p class="font-bold text-gray-900">Karyawan ybs</p>
+                        <div class="signature-canvas-container">
+                            <!-- Kanvas Tanda Tangan Karyawan -->
+                            <canvas id="signature-canvas-karyawan" class="signature-canvas" width="150" height="150"></canvas>
+                        </div>
+                        <button type="button" id="clear-signature-karyawan" class="mt-1 text-xs text-red-600 hover:text-red-700 clear-sig-btn">
+                            <i class="ph ph-trash-simple text-sm mr-1"></i> Hapus
+                        </button>
+                    </div>
+                    
+                    <!-- Kolom 2: Disetujui Oleh (TANDA TANGAN MANAGEMENT) -->
+                    <div>
+                        <p class="mb-1">Disetujui Oleh</p>
+                        <p class="font-bold text-gray-900">Management</p>
+                        <div class="signature-canvas-container">
+                            <!-- Kanvas Tanda Tangan Management -->
+                            <canvas id="signature-canvas-management" class="signature-canvas" width="150" height="150"></canvas>
+                        </div>
+                        <button type="button" id="clear-signature-management" class="mt-1 text-xs text-red-600 hover:text-red-700 clear-sig-btn">
+                            <i class="ph ph-trash-simple text-sm mr-1"></i> Hapus
+                        </button>
+                    </div>
+                    
+                    <!-- Kolom 3: Diketahui Oleh (TANDA TANGAN ATASAN) -->
+                    <div>
+                        <p class="mb-1">Diketahui Oleh</p>
+                        <p class="font-bold text-gray-900">Atasan</p>
+                        <div class="signature-canvas-container">
+                            <!-- Kanvas Tanda Tangan Atasan -->
+                            <canvas id="signature-canvas-atasan" class="signature-canvas" width="150" height="150"></canvas>
+                        </div>
+                        <button type="button" id="clear-signature-atasan" class="mt-1 text-xs text-red-600 hover:text-red-700 clear-sig-btn">
+                            <i class="ph ph-trash-simple text-sm mr-1"></i> Hapus
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- AKHIR BAGIAN TANDA TANGAN -->
+
+            <!-- Keterangan tanda * (Wajib Diisi) -->
+            <p class="text-xs text-gray-500 mt-6 border-t pt-4">
+                <span class="text-red-600 font-bold">*</span> Wajib Diisi
+            </p>
+
+            <div id="message-box" class="mt-4 p-3 rounded-lg text-sm hidden"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4" id="action-buttons-container">
+                <button type="button" id="submit-button" class="py-3 px-4 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition duration-300 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 flex items-center justify-center">
+                    <i class="ph ph-paper-plane text-xl mr-2"></i>
+                    Ajukan Permohonan Izin (Simpan Data)
+                </button>
+                <button type="button" id="download-button" class="py-3 px-4 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 transition duration-300 focus:outline-none focus:ring-4 focus:ring-green-500 focus:ring-opacity-50 flex items-center justify-center">
+                    <i class="ph ph-image-square text-xl mr-2"></i>
+                    Unduh Formulir sebagai PNG
+                </button>
+            </div>
+        </div>
+        <!-- Akhir dari printable-form-container -->
+
+        <!-- Daftar Permohonan yang Sudah Diajukan (Real-time) -->
+        <div class="max-w-4xl mx-auto mt-10 p-6 sm:p-8 bg-white rounded-xl form-card">
+            <h2 class="text-2xl font-semibold mb-6 text-green-700 border-b pb-2 flex items-center">
+                <i class="ph ph-list-checks text-2xl mr-2"></i>
+                Riwayat Permohonan Izin (Real-Time)
+            </h2>
+            <div id="requests-list" class="space-y-4">
+                <p id="loading-requests" class="text-center text-gray-500">Memuat data permohonan...</p>
+                <!-- Permintaan akan dimasukkan di sini oleh JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs & Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, setLogLevel, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Atur level log untuk melihat error Firebase di konsol
+        setLogLevel('Debug');
+
+        // Variabel global dari lingkungan Canvas (WAJIB DIGUNAKAN)
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db;
+        let auth;
+        let userId = null;
+        let isAuthReady = false;
+
+        const MESSAGE_BOX = document.getElementById('message-box');
+        const REQUESTS_LIST = document.getElementById('requests-list');
+        const USER_INFO = document.getElementById('user-info');
+        const FORM = document.getElementById('leave-request-form');
+        const LAIN_LAIN_CONTAINER = document.getElementById('lain-lain-container');
+        const JENIS_IZIN_OPTIONS = document.getElementById('jenis-izin-options');
+        const DOWNLOAD_BUTTON = document.getElementById('download-button');
+        const SUBMIT_BUTTON = document.getElementById('submit-button');
+        const ACTION_BUTTONS_CONTAINER = document.getElementById('action-buttons-container');
+
+        // Daftar field yang wajib diisi (hanya data Karyawan)
+        const REQUIRED_FIELDS = [
+            { id: 'nama', label: 'Nama', group: 'input' },
+            { id: 'nik', label: 'NIK', group: 'input' },
+            { id: 'departemen', label: 'Departemen', group: 'input' },
+            { id: 'jabatan', label: 'Jabatan', group: 'input' },
+            { id: 'tanggal_mulai', label: 'Tanggal Izin Mulai', group: 'input' },
+            { id: 'tanggal_selesai', label: 'Tanggal Izin Selesai', group: 'input' },
+            { id: 'alamat', label: 'Alamat', group: 'textarea' },
+            { id: 'no_telp', label: 'No. Telp', group: 'input' },
+            { id: 'jenis_izin', label: 'Jenis Permohonan Izin', group: 'radio' },
+            { id: 'signature_data_karyawan', label: 'Tanda Tangan Karyawan', group: 'signature' },
+        ];
+
+
+        // Fungsi utilitas untuk menampilkan pesan
+        function showMessage(message, type = 'info') {
+            MESSAGE_BOX.textContent = message;
+            MESSAGE_BOX.classList.remove('hidden', 'bg-red-100', 'text-red-800', 'bg-green-100', 'text-green-800', 'bg-blue-100', 'text-blue-800');
+            if (type === 'error') {
+                MESSAGE_BOX.classList.add('bg-red-100', 'text-red-800');
+            } else if (type === 'success') {
+                MESSAGE_BOX.classList.add('bg-green-100', 'text-green-800');
+            } else {
+                MESSAGE_BOX.classList.add('bg-blue-100', 'text-blue-800');
+            }
+            MESSAGE_BOX.classList.remove('hidden');
+            setTimeout(() => {
+                MESSAGE_BOX.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Fungsi untuk menghitung selisih hari antara dua tanggal
+        function getDayDifference(date1, date2) {
+            const oneDay = 24 * 60 * 60 * 1000;
+            const firstDate = new Date(date1);
+            const secondDate = new Date(date2);
+
+            const diffDays = Math.round(Math.abs((firstDate - secondDate) / oneDay)) + 1;
+            return isNaN(diffDays) || diffDays <= 0 ? 0 : diffDays;
+        }
+
+        // --- Fitur Baru: Menonaktifkan Tanggal Lampau ---
+        /**
+         * Mengatur atribut 'min' pada input tanggal menjadi tanggal hari ini (tidak boleh tanggal lampau).
+         */
+        function setMinDateForLeave() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const todayISO = `${year}-${month}-${day}`;
+
+            // Terapkan pada kedua input tanggal izin
+            document.getElementById('tanggal_mulai').min = todayISO;
+            document.getElementById('tanggal_selesai').min = todayISO;
+        }
+
+
+        // --- VALIDASI KUSTOM UNTUK PESAN BOLD INLINE ---
+        function clearValidationErrors() {
+            document.querySelectorAll('.validation-error').forEach(el => el.remove());
+            document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+            
+            // Hapus error dari kanvas karyawan
+            document.getElementById('signature-canvas-karyawan').classList.remove('input-error'); 
+        }
+
+        function validateForm() {
+            clearValidationErrors();
+            let isValid = true;
+            
+            let fieldsToValidate = [...REQUIRED_FIELDS];
+            const isLainLainSelected = document.querySelector('input[name="jenis_izin"]:checked')?.value === 'Lain-Lain';
+            if (isLainLainSelected) {
+                fieldsToValidate.push({ id: 'alasan_lain', label: 'Alasan Lain-Lain', group: 'textarea' });
+            }
+
+            for (const field of fieldsToValidate) {
+                let value;
+                let element;
+                let errorContainer;
+                let isRequired = true; 
+
+                if (field.group === 'radio') {
+                    const checkedRadio = document.querySelector(`input[name="${field.id}"]:checked`);
+                    value = checkedRadio ? checkedRadio.value : '';
+                    errorContainer = document.getElementById('jenis-izin-heading');
+                } else if (field.group === 'signature') {
+                    value = document.getElementById(field.id).value.trim();
+                    element = document.getElementById('signature-canvas-karyawan');
+                    // Container untuk tanda tangan adalah parent dari canvas
+                    errorContainer = element.closest('.signature-canvas-container').parentNode;
+                } else {
+                    element = document.getElementById(field.id);
+                    value = element ? element.value.trim() : '';
+                    errorContainer = element ? element.closest('.flex.flex-col, .md\\:col-span-2') : null;
+                }
+
+                if (isRequired && !value) {
+                    isValid = false;
+                    const errorMsg = document.createElement('p');
+                    errorMsg.className = 'validation-error';
+                    errorMsg.textContent = 'Kolom ini wajib diisi!';
+
+                    if (field.group === 'radio' && errorContainer) {
+                        const existingError = errorContainer.parentNode.querySelector('.radio-error-msg');
+                        if (!existingError) {
+                            errorMsg.classList.add('radio-error-msg', 'mt-1', 'mb-4');
+                            errorContainer.parentNode.insertBefore(errorMsg, errorContainer.nextSibling);
+                        }
+                    } else if (field.group === 'signature' && errorContainer) {
+                        // Untuk tanda tangan, masukkan setelah tombol hapus
+                        errorMsg.classList.add('mt-1');
+                        errorContainer.appendChild(errorMsg);
+                        element.classList.add('input-error'); 
+                    }
+                    else if (errorContainer) {
+                        errorContainer.appendChild(errorMsg);
+                        element.classList.add('input-error');
+                    }
+                }
+            }
+
+            if (!isValid) {
+                const firstError = document.querySelector('.validation-error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
+
+            return isValid;
+        }
+
+        // --- Logika Kanvas Tanda Tangan (Reusable Function) ---
+
+        // Fungsi inisialisasi untuk satu kanvas
+        function initSignaturePad(canvasId, inputId, clearButtonId) {
+            const CANVAS = document.getElementById(canvasId);
+            const INPUT = document.getElementById(inputId);
+            const CLEAR_BUTTON = document.getElementById(clearButtonId);
+            const CTX = CANVAS.getContext('2d');
+            
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            // Setup Awal
+            function setupCanvas() {
+                // Dimensi sudah diatur di HTML: 150x150
+                CTX.strokeStyle = '#000000'; // Hitam
+                CTX.lineWidth = 3; 
+                CTX.lineJoin = 'round';
+                CTX.lineCap = 'round';
+                CTX.fillStyle = 'white';
+                CTX.fillRect(0, 0, CANVAS.width, CANVAS.height);
+            }
+            setupCanvas();
+            
+            function clearSignature() {
+                setupCanvas(); 
+                INPUT.value = '';
+                // Hanya hapus error validasi jika tombol yang ditekan adalah milik karyawan
+                if (canvasId === 'signature-canvas-karyawan') {
+                    clearValidationErrors(); 
+                }
+            }
+
+            function draw(e) {
+                if (!isDrawing) return;
+
+                let clientX, clientY;
+                if (e.touches && e.touches.length > 0) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                const rect = CANVAS.getBoundingClientRect();
+                let x = clientX - rect.left;
+                let y = clientY - rect.top;
+
+                CTX.beginPath();
+                CTX.moveTo(lastX, lastY);
+                CTX.lineTo(x, y);
+                CTX.stroke();
+
+                lastX = x;
+                lastY = y;
+            }
+
+            function startDrawing(e) {
+                isDrawing = true;
+                
+                let clientX, clientY;
+                if (e.touches && e.touches.length > 0) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                } else {
+                    clientX = e.clientX;
+                    clientY = e.clientY;
+                }
+
+                const rect = CANVAS.getBoundingClientRect();
+                lastX = clientX - rect.left;
+                lastY = clientY - rect.top;
+                
+                if (e.type === 'touchstart') {
+                    e.preventDefault();
+                }
+            }
+            
+            function stopDrawing() {
+                if (!isDrawing) return;
+                isDrawing = false;
+                
+                // Simpan tanda tangan dalam format Base64
+                INPUT.value = CANVAS.toDataURL('image/png');
+                
+                // Hapus pesan error jika kanvas karyawan yang digambar
+                if (canvasId === 'signature-canvas-karyawan') {
+                    clearValidationErrors();
+                }
+            }
+
+            // Event Listeners
+            CANVAS.addEventListener('mousedown', startDrawing);
+            CANVAS.addEventListener('mousemove', draw);
+            CANVAS.addEventListener('mouseup', stopDrawing);
+            CANVAS.addEventListener('mouseout', stopDrawing); 
+
+            CANVAS.addEventListener('touchstart', startDrawing);
+            CANVAS.addEventListener('touchmove', draw);
+            CANVAS.addEventListener('touchend', stopDrawing);
+
+            CLEAR_BUTTON.addEventListener('click', clearSignature);
+            
+            // Mengembalikan object dengan method clear, canvas, input, dan tombol clear
+            return {
+                clear: clearSignature,
+                canvasElement: CANVAS,
+                inputElement: INPUT,
+                clearButtonElement: CLEAR_BUTTON // Mengembalikan elemen tombol untuk diakses di fungsi lain
+            };
+        }
+        
+        let sigPads = {}; 
+
+        function initCanvasListeners() {
+            // Inisialisasi Karyawan
+            sigPads.karyawan = initSignaturePad(
+                'signature-canvas-karyawan', 
+                'signature_data_karyawan', 
+                'clear-signature-karyawan'
+            );
+            // Inisialisasi Management
+            sigPads.management = initSignaturePad(
+                'signature-canvas-management', 
+                'signature_data_management', 
+                'clear-signature-management'
+            );
+            // Inisialisasi Atasan
+            sigPads.atasan = initSignaturePad(
+                'signature-canvas-atasan', 
+                'signature_data_atasan', 
+                'clear-signature-atasan'
+            );
+        }
+        // Panggil inisialisasi kanvas
+        initCanvasListeners();
+
+        // --- Logika Utama Aplikasi Firebase ---
+        
+        async function initializeAppAndAuth() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    showMessage("Kesalahan: Konfigurasi Firebase tidak ditemukan.", 'error');
+                    return;
+                }
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                    } else if (initialAuthToken) {
+                        await signInWithCustomToken(auth, initialAuthToken);
+                        userId = auth.currentUser.uid;
+                    } else {
+                        await signInAnonymously(auth);
+                        userId = auth.currentUser.uid;
+                    }
+                    isAuthReady = true;
+                    USER_INFO.innerHTML = `Terhubung sebagai ID Pengguna: <span class="font-mono text-blue-700">${userId}</span>`;
+                    
+                    setupRealtimeListener(); 
+                });
+
+            } catch (error) {
+                console.error("Kesalahan inisialisasi Firebase/Otentikasi:", error);
+                showMessage("Gagal menginisialisasi aplikasi. Cek konsol untuk detail.", 'error');
+            }
+        }
+
+        // Fungsi untuk menangani pengiriman formulir
+        async function handleSubmit() {
+            if (!isAuthReady || !db) {
+                showMessage("Sistem belum siap. Tunggu sebentar dan coba lagi.", 'error');
+                return;
+            }
+            
+            if (!validateForm()) {
+                 showMessage("Ada kolom wajib (*) yang belum diisi, termasuk Tanda Tangan Karyawan. Harap periksa notifikasi merah di setiap kolom.", 'error');
+                 return;
+            }
+
+            const formData = new FormData(FORM);
+            const jenisIzin = formData.get('jenis_izin');
+            const alasanLain = jenisIzin === 'Lain-Lain' ? formData.get('alasan_lain') : '';
+            
+            const leaveData = {
+                // Data Karyawan
+                nama: formData.get('nama'),
+                nik: formData.get('nik'),
+                departemen: formData.get('departemen'),
+                jabatan: formData.get('jabatan'),
+                
+                // Jenis Izin
+                jenis_izin: jenisIzin,
+                alasan_lain: alasanLain, 
+                
+                // Durasi Izin
+                tanggal_mulai: formData.get('tanggal_mulai'),
+                tanggal_selesai: formData.get('tanggal_selesai'),
+                lama_izin_hari: getDayDifference(formData.get('tanggal_mulai'), formData.get('tanggal_selesai')),
+                
+                // Pengganti (Opsional)
+                pengganti_nama: formData.get('pengganti_nama'), 
+                pengganti_jabatan: formData.get('pengganti_jabatan'), 
+                
+                // Kontak Darurat
+                alamat: formData.get('alamat'),
+                no_telp: formData.get('no_telp'),
+                
+                // Tanda Tangan Karyawan (Hanya yang ini yang wajib)
+                tanda_tangan_karyawan: formData.get('signature_data_karyawan'),
+                tanda_tangan_management: formData.get('signature_data_management'),
+                tanda_tangan_atasan: formData.get('signature_data_atasan'),
+
+                // Metadata
+                tanggal_diajukan: serverTimestamp(),
+                diajukan_oleh_user_id: userId,
+                status_permohonan: 'Pending (Menunggu Persetujuan Atasan)',
+            };
+
+            SUBMIT_BUTTON.disabled = true;
+            SUBMIT_BUTTON.innerHTML = '<i class="ph ph-circle-notch animate-spin text-xl mr-2"></i> Mengirim...';
+
+            try {
+                const collectionPath = `artifacts/${appId}/public/data/leave_requests`;
+                await addDoc(collection(db, collectionPath), leaveData);
+
+                showMessage("Permohonan izin berhasil diajukan!", 'success');
+                FORM.reset();
+                document.getElementById('lama_izin').value = '';
+                LAIN_LAIN_CONTAINER.classList.add('hidden');
+                
+                // Bersihkan semua kanvas setelah submit
+                Object.values(sigPads).forEach(pad => pad.clear()); 
+            } catch (error) {
+                console.error("Kesalahan saat menyimpan data:", error);
+                showMessage("Gagal mengajukan permohonan. Error: " + error.message, 'error');
+            } finally {
+                SUBMIT_BUTTON.disabled = false;
+                SUBMIT_BUTTON.innerHTML = '<i class="ph ph-paper-plane text-xl mr-2"></i> Ajukan Permohonan Izin (Simpan Data)';
+            }
+        }
+
+        // Fungsi untuk membuat elemen daftar permohonan
+        function createRequestElement(request) {
+            const element = document.createElement('div');
+            const statusColor = request.status_permohonan.includes('Pending') ? 'bg-yellow-100 text-yellow-800'
+                               : request.status_permohonan.includes('Approved') ? 'bg-green-100 text-green-800'
+                               : 'bg-red-100 text-red-800';
+
+            const formattedDate = request.tanggal_diajukan ? new Date(request.tanggal_diajukan.seconds * 1000).toLocaleDateString('id-ID', {
+                day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            }) : 'Baru saja';
+
+            const detailIzin = request.jenis_izin === 'Lain-Lain' && request.alasan_lain
+                ? `Lain-Lain: ${request.alasan_lain}`
+                : request.jenis_izin;
+
+            element.className = 'p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition duration-150';
+            element.innerHTML = `
+                <div class="flex justify-between items-start mb-2">
+                    <h4 class="text-lg font-bold text-gray-800">${request.nama} (${request.nik})</h4>
+                    <span class="px-3 py-1 text-xs font-semibold rounded-full ${statusColor}">
+                        ${request.status_permohonan}
+                    </span>
+                </div>
+                <p class="text-sm text-gray-600 mb-1">
+                    <i class="ph ph-calendar-check text-blue-500 mr-1"></i>
+                    <strong>${detailIzin}</strong> dari ${request.tanggal_mulai} s/d ${request.tanggal_selesai} (${request.lama_izin_hari} Hari)
+                </p>
+                <p class="text-xs text-gray-500">
+                    <i class="ph ph-clock text-gray-500 mr-1"></i>
+                    Diajukan pada: ${formattedDate}
+                </p>
+            `;
+            return element;
+        }
+
+        // Fungsi untuk mendengarkan perubahan data secara real-time (onSnapshot)
+        function setupRealtimeListener() {
+            if (!isAuthReady || !db) return;
+
+            const collectionPath = `artifacts/${appId}/public/data/leave_requests`;
+            const q = query(collection(db, collectionPath), orderBy("tanggal_diajukan", "desc"));
+            
+            onSnapshot(q, (querySnapshot) => {
+                const requests = [];
+                querySnapshot.forEach((doc) => {
+                    requests.push({ id: doc.id, ...doc.data() });
+                });
+
+                // NOTE: Pengurutan di Firestore sudah dilakukan, tapi kita tambahkan 
+                // pengurutan di client untuk memastikan data yang tidak memiliki timestamp
+                // (misalnya data yang baru dibuat) muncul di atas.
+                requests.sort((a, b) => {
+                    if (a.tanggal_diajukan && b.tanggal_diajukan) {
+                        return b.tanggal_diajukan.seconds - a.tanggal_diajukan.seconds;
+                    }
+                    return 0;
+                });
+
+                REQUESTS_LIST.innerHTML = '';
+                if (requests.length === 0) {
+                    REQUESTS_LIST.innerHTML = '<p class="text-center text-gray-500 py-4">Belum ada permohonan yang diajukan.</p>';
+                } else {
+                    requests.forEach(request => {
+                        REQUESTS_LIST.appendChild(createRequestElement(request));
+                    });
+                }
+            }, (error) => {
+                console.error("Kesalahan mendengarkan data real-time:", error);
+                showMessage("Gagal memuat riwayat permohonan. Cek aturan keamanan Firestore.", 'error');
+            });
+        }
+
+        // --- Logika Tambahan ---
+
+        // Fungsi untuk Mengunduh Formulir sebagai PNG 
+        async function downloadFormAsImage() {
+            // Lakukan validasi kustom sebelum mengunduh
+            if (!validateForm()) {
+                 showMessage("Tidak bisa mengunduh formulir. Harap isi semua kolom wajib (*) terlebih dahulu, termasuk Tanda Tangan Karyawan.", 'error');
+                 return;
+            }
+            
+            const container = document.getElementById('printable-form-container');
+            
+            // Siapkan array untuk menampung elemen pengganti tanda tangan
+            const sigReplacements = []; 
+            
+            // 1. Ganti semua kanvas dengan elemen IMG (hanya untuk proses capture)
+            Object.values(sigPads).forEach(pad => {
+                const signatureData = pad.inputElement.value;
+                const canvasContainer = pad.canvasElement.parentNode;
+                
+                // Buat placeholder IMG
+                const sigPlaceholder = document.createElement('img');
+                sigPlaceholder.src = signatureData || "https://placehold.co/150x150/f0f0f0/888?text=Tanda+Tangan+Kosong"; // Placeholder jika kosong
+                sigPlaceholder.width = pad.canvasElement.width;
+                sigPlaceholder.height = pad.canvasElement.height;
+                sigPlaceholder.className = 'w-full h-full';
+                
+                // Sembunyikan kanvas dan tombol clear, lalu masukkan IMG
+                pad.canvasElement.style.display = 'none';
+                
+                // Pastikan clearButtonElement ada sebelum mengakses .style
+                if (pad.clearButtonElement) {
+                    pad.clearButtonElement.style.display = 'none';
+                }
+                
+                canvasContainer.appendChild(sigPlaceholder);
+                
+                sigReplacements.push({ 
+                    canvasContainer, 
+                    canvasElement: pad.canvasElement, 
+                    clearButton: pad.clearButtonElement, // Sekarang properti ini sudah terdefinisi
+                    placeholder: sigPlaceholder 
+                });
+            });
+
+            // Sembunyikan elemen yang tidak perlu dicetak
+            ACTION_BUTTONS_CONTAINER.style.display = 'none';
+            USER_INFO.style.display = 'none';
+            MESSAGE_BOX.style.display = 'none';
+            
+            // Tambahkan padding temporer agar hasil capture lebih rapi
+            container.style.padding = '2rem'; 
+
+            showMessage("Memproses formulir menjadi gambar...", 'info');
+
+            try {
+                const canvas = await html2canvas(container, {
+                    scale: 2, 
+                    useCORS: true,
+                    allowTaint: true, 
+                    onclone: (clonedDocument) => {
+                        // Pastikan elemen non-cetak disembunyikan di cloned document
+                        clonedDocument.getElementById('action-buttons-container').style.display = 'none';
+                        clonedDocument.getElementById('user-info').style.display = 'none';
+                        clonedDocument.getElementById('message-box').style.display = 'none';
+                        const requestsList = clonedDocument.getElementById('requests-list');
+                        if (requestsList) { requestsList.style.display = 'none'; }
+                    }
+                });
+
+                const imageURL = canvas.toDataURL('image/png'); 
+                
+                const a = document.createElement('a');
+                a.href = imageURL;
+                const nikKaryawan = document.getElementById('nik').value || 'NIK_Kosong';
+                const tanggalIzin = document.getElementById('tanggal_mulai').value || new Date().toISOString().slice(0, 10);
+                a.download = `Form_Izin_${nikKaryawan}_${tanggalIzin}.png`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                showMessage("Formulir berhasil diunduh sebagai PNG!", 'success');
+
+            } catch (error) {
+                console.error("Gagal mengunduh gambar:", error);
+                showMessage("Gagal membuat gambar formulir. Error: " + error.message, 'error');
+            } finally {
+                // Kembalikan semua kanvas
+                sigReplacements.forEach(rep => {
+                    rep.canvasContainer.removeChild(rep.placeholder);
+                    rep.canvasElement.style.display = 'block';
+                    
+                    // Pastikan rep.clearButton ada sebelum mengakses .style
+                    if (rep.clearButton) {
+                        rep.clearButton.style.display = 'flex'; 
+                    }
+                });
+                
+                // Tampilkan kembali tombol dan elemen yang disembunyikan
+                ACTION_BUTTONS_CONTAINER.style.display = 'grid';
+                USER_INFO.style.display = 'block';
+                MESSAGE_BOX.style.display = 'block';
+                container.style.padding = '2.5rem';
+            }
+        }
+        
+        // --- Event Listeners Tambahan ---
+
+        // Menampilkan/Menyembunyikan Kolom Alasan Lain-Lain
+        function toggleLainLainInput() {
+            const selectedRadio = document.querySelector('input[name="jenis_izin"]:checked');
+            if (selectedRadio && selectedRadio.value === 'Lain-Lain') {
+                LAIN_LAIN_CONTAINER.classList.remove('hidden');
+            } else {
+                LAIN_LAIN_CONTAINER.classList.add('hidden');
+                document.getElementById('alasan_lain').value = ''; 
+            }
+            clearValidationErrors(); 
+        }
+        
+        // Menghitung Otomatis Lama Izin (Hari)
+        function updateLamaIzin() {
+            const start = document.getElementById('tanggal_mulai').value;
+            const end = document.getElementById('tanggal_selesai').value;
+            const lamaIzinInput = document.getElementById('lama_izin');
+
+            if (start && end) {
+                const diff = getDayDifference(start, end);
+                lamaIzinInput.value = diff;
+            } else {
+                lamaIzinInput.value = '';
+            }
+        }
+
+        // Inisialisasi Aplikasi dan Event Listeners
+        initializeAppAndAuth();
+        setMinDateForLeave(); // Panggil fungsi untuk menetapkan tanggal minimum hari ini
+        
+        SUBMIT_BUTTON.addEventListener('click', handleSubmit);
+        DOWNLOAD_BUTTON.addEventListener('click', downloadFormAsImage);
+        
+        document.getElementById('tanggal_mulai').addEventListener('change', updateLamaIzin);
+        document.getElementById('tanggal_selesai').addEventListener('change', updateLamaIzin);
+
+        JENIS_IZIN_OPTIONS.addEventListener('change', toggleLainLainInput);
+        
+        toggleLainLainInput(); 
+    </script>
+</body>
+</html>

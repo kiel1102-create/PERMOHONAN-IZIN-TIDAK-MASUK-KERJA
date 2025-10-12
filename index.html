@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Memuat library Phosphor Icons untuk ikon -->
     <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/dist/umd/phosphor-icons.js"></script>
-    <!-- Memuat html2canvas untuk konversi HTML ke gambar (JPEG/PNG) -->
+    <!-- Memuat html2canvas untuk konversi HTML ke gambar (PNG) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* Mengatur font agar terlihat lebih profesional */
@@ -23,11 +23,10 @@
         /* Container utama: Dibatasi lebarnya untuk konsistensi hasil download */
         #printable-form-container {
             /* STANDAR UNTUK HASIL DOWNLOAD (MAX 800PX) */
-            max-width: 800px;
-            /* Pastikan background putih saat dicapture */
-            background-color: white; 
+            max-width: 100%; /* Default responsive */
             margin-left: auto;
             margin-right: auto;
+            background-color: white; 
         }
 
         /* MENGGANTI (Wajib Diisi) DENGAN TANDA BINTANG (*) */
@@ -55,18 +54,17 @@
             border-bottom: 3px solid #000;
             padding-bottom: 5px;
             margin-bottom: 20px;
-            /* Ukuran font disesuaikan agar tetap terlihat baik di HP */
             text-align: center;
         }
         .header-kop div {
             line-height: 1.2;
         }
         .header-kop .title-company {
-            font-size: 1.25rem; /* Lebih kecil untuk HP */
+            font-size: 1.25rem; 
             font-weight: 900;
         }
         .header-kop .subtitle-address {
-            font-size: 0.75rem; /* Lebih kecil untuk HP */
+            font-size: 0.75rem; 
             color: #4b5563;
         }
         /* Styling untuk Kanvas Tanda Tangan Digital */
@@ -94,6 +92,7 @@
              display: flex;
              justify-content: center;
         }
+        
         /* Media Query untuk Desktop/Layar Lebar */
         @media (min-width: 640px) {
              .header-kop .title-company {
@@ -102,6 +101,33 @@
             .header-kop .subtitle-address {
                 font-size: 0.8rem;
             }
+        }
+        
+        /* ========================================================== */
+        /* ENFORCING STANDARD LAYOUT FOR PRINTING (PRINT-STANDARD-MODE)*/
+        /* Ini akan memaksa layout 2 atau 3 kolom saat html2canvas berjalan, 
+           mengabaikan ukuran layar mobile. */
+        /* ========================================================== */
+
+        /* 1. Paksa 2 Kolom untuk Data Karyawan & Durasi Izin */
+        #printable-form-container.print-standard-mode .data-karyawan-grid,
+        #printable-form-container.print-standard-mode .durasi-izin-grid {
+             grid-template-columns: repeat(2, minmax(0, 1fr)) !important; 
+        }
+        
+        /* 2. Paksa 3 Kolom untuk Jenis Izin */
+        #printable-form-container.print-standard-mode #jenis-izin-options {
+             grid-template-columns: repeat(3, minmax(0, 1fr)) !important; 
+        }
+        
+        /* 3. Paksa 3 Kolom untuk Tanda Tangan */
+        #printable-form-container.print-standard-mode #signature-section > div {
+            grid-template-columns: repeat(3, minmax(0, 1fr)) !important; 
+        }
+        
+        /* 4. Ensure address takes full width even in print mode */
+        #printable-form-container.print-standard-mode .alamat-row {
+            grid-column: span 2 / span 2;
         }
     </style>
 </head>
@@ -117,14 +143,13 @@
         </header>
 
         <!-- Container utama formulir (Ini akan di-capture untuk PNG) -->
-        <!-- max-w-full pada mobile, max-w-4xl (800px) pada desktop/download -->
+        <!-- max-w-full pada mobile, namun akan di-override menjadi 800px saat capture -->
         <div id="printable-form-container" class="max-w-full mx-auto bg-white rounded-xl overflow-hidden form-card p-5 sm:p-10">
             
             <!-- KOP SURAT -->
             <div class="header-kop text-center">
                 <div class="title-company">PT. EVEREST ELECTRONIC SALES & SERVICE</div>
                 <div class="text-xs text-gray-700 font-semibold mt-1">AIR CONDITIONER - SPARE PARTS</div>
-                <!-- Alamat dikurangi ukurannya agar muat di HP -->
                 <div class="subtitle-address text-xs mt-1">OFFICE: Jl. KH. Hasyim Ashari No. 144, Pinang-Cipondoh | Telp: (021) 7329480, ...</div>
             </div>
             
@@ -135,8 +160,8 @@
                 <!-- Keterangan pembuka -->
                 <p class="text-sm text-gray-700 mb-4">Yang Bertanda Tangan dibawah ini :</p>
 
-                <!-- Bagian Data Karyawan (RESPONSIVE: 2 kolom di desktop, 1 kolom di HP) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Bagian Data Karyawan -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 data-karyawan-grid">
                     <div class="flex flex-col">
                         <label for="nama" class="text-sm font-medium text-gray-700 required-label">Nama</label>
                         <input type="text" id="nama" name="nama" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
@@ -203,8 +228,8 @@
                     <textarea id="alasan_lain" name="alasan_lain" rows="2" placeholder="Jelaskan alasan izin Anda secara rinci" class="mt-1 p-3 border border-red-300 rounded-lg focus:ring-red-500 focus:border-red-500"></textarea>
                 </div>
 
-                <!-- Bagian Durasi Izin (RESPONSIVE: 1 kolom di HP, 3 kolom di desktop) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
+                <!-- Bagian Durasi Izin -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200 durasi-izin-grid">
                     <div class="flex flex-col">
                         <label for="tanggal_mulai" class="text-sm font-medium text-gray-700 required-label">Tanggal Izin Mulai</label>
                         <input type="date" id="tanggal_mulai" name="tanggal_mulai" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
@@ -219,9 +244,9 @@
                     </div>
                 </div>
 
-                <!-- Bagian Pengganti Karyawan dan Kontak (RESPONSIVE: 1 kolom di HP, 2 kolom di desktop) -->
+                <!-- Bagian Pengganti Karyawan dan Kontak -->
                 <h3 class="text-lg sm:text-xl font-semibold mb-4 pt-4 text-blue-700 border-t pb-2">Pengganti Karyawan & Kontak Darurat</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 data-karyawan-grid">
                     <div class="flex flex-col">
                         <label for="pengganti_nama" class="text-sm font-medium text-gray-700">Nama Pengganti Karyawan (Opsional)</label>
                         <input type="text" id="pengganti_nama" name="pengganti_nama" placeholder="Diisi jika diperlukan" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500">
@@ -233,7 +258,7 @@
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="flex flex-col md:col-span-2">
+                    <div class="flex flex-col md:col-span-2 alamat-row">
                         <label for="alamat" class="text-sm font-medium text-gray-700 required-label">Alamat (Apabila Diperlukan saya dapat dihubungi)</label>
                         <textarea id="alamat" name="alamat" rows="2" class="mt-1 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"></textarea>
                     </div>
@@ -250,7 +275,7 @@
                 
             </form>
             
-            <!-- BAGIAN TANDA TANGAN (RESPONSIVE: 1 kolom di HP, 3 kolom di desktop) -->
+            <!-- BAGIAN TANDA TANGAN -->
             <div id="signature-section" class="pt-8 mt-6 border-t border-gray-300">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-sm font-medium text-gray-700">
                     
@@ -348,18 +373,7 @@
 
     <!-- Firebase SDKs & Logic -->
     <script type="module">
-        // Import Firebase SDKs (tetap ada, namun tidak dipanggil untuk inisialisasi dan submit)
-        // import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // import { getFirestore, doc, addDoc, onSnapshot, collection, query, serverTimestamp, setLogLevel, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Variabel global dari lingkungan Canvas (WAJIB DIGUNAKAN)
-        // const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        // const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        // const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let db; // Dibiarkan kosong, tidak digunakan
-        let auth; // Dibiarkan kosong, tidak digunakan
+        // Variabel global dummy
         let userId = null;
         let isAuthReady = false;
 
@@ -419,9 +433,6 @@
         }
 
         // --- Fitur: Menonaktifkan Tanggal Lampau ---
-        /**
-         * Mengatur atribut 'min' pada input tanggal menjadi tanggal hari ini (tidak boleh tanggal lampau).
-         */
         function setMinDateForLeave() {
             const today = new Date();
             const year = today.getFullYear();
@@ -429,7 +440,6 @@
             const day = String(today.getDate()).padStart(2, '0');
             const todayISO = `${year}-${month}-${day}`;
 
-            // Terapkan pada kedua input tanggal izin
             document.getElementById('tanggal_mulai').min = todayISO;
             document.getElementById('tanggal_selesai').min = todayISO;
         }
@@ -668,7 +678,7 @@
         });
 
 
-        // --- Logika Tambahan ---
+        // --- Logika Unduh Formulir sebagai PNG (Diperbarui untuk Layout Standar) ---
 
         // Fungsi untuk Mengunduh Formulir sebagai PNG 
         async function downloadFormAsImage() {
@@ -717,13 +727,19 @@
             USER_INFO.style.display = 'none';
             MESSAGE_BOX.style.display = 'none';
             
-            // Atur lebar container menjadi fixed 800px untuk hasil standar (Hanya jika sedang ditampilkan lebih lebar)
+            // =========================================================
+            // *** PENTING: Terapkan Layout Standar Cetak (800px) ***
+            // =========================================================
             const originalMaxWidth = container.style.maxWidth;
             const originalPadding = container.style.padding;
             
+            // 1. Enforce max-width 800px and consistent padding for standard look
             container.style.maxWidth = '800px'; 
-            container.style.padding = '2.5rem'; // Padding konsisten untuk hasil cetak
-            container.classList.add('shadow-none'); // Hapus shadow saat capture
+            container.style.padding = '2.5rem'; 
+            container.classList.add('shadow-none'); 
+            
+            // 2. Terapkan kelas override untuk memaksa layout multi-kolom (Fixes Mobile Layout Issue)
+            container.classList.add('print-standard-mode');
 
             showMessage("Memproses formulir menjadi gambar...", 'info');
 
@@ -774,10 +790,13 @@
                 USER_INFO.style.display = 'block';
                 MESSAGE_BOX.style.display = 'block';
                 
-                // Kembalikan style container ke kondisi semula (responsif)
+                // =========================================================
+                // *** PENTING: Kembalikan ke Mode Responsif ***
+                // =========================================================
                 container.style.maxWidth = originalMaxWidth;
                 container.style.padding = originalPadding;
                 container.classList.remove('shadow-none');
+                container.classList.remove('print-standard-mode'); // <-- HAPUS KELAS OVERRIDE
             }
         }
         

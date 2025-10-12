@@ -20,22 +20,27 @@
         .form-card {
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
-        /* Styling untuk container yang akan diubah menjadi gambar */
+        /* Container utama: Dibatasi lebarnya untuk konsistensi hasil download */
         #printable-form-container {
+            /* STANDAR UNTUK HASIL DOWNLOAD (MAX 800PX) */
+            max-width: 800px;
             /* Pastikan background putih saat dicapture */
             background-color: white; 
+            margin-left: auto;
+            margin-right: auto;
         }
+
         /* MENGGANTI (Wajib Diisi) DENGAN TANDA BINTANG (*) */
         .required-label::after {
             content: " *"; 
             color: #ef4444; /* Merah */
-            font-size: 1.2rem; /* Ukuran lebih besar agar menonjol */
+            font-size: 1.2rem; 
             font-weight: 700; 
             margin-left: 3px;
             line-height: 0;
             vertical-align: middle;
         }
-        /* Styling kustom untuk notifikasi error validasi (sesuai permintaan, tebal) */
+        /* Styling kustom untuk notifikasi error validasi */
         .validation-error {
             color: #ef4444;
             font-size: 0.85rem;
@@ -50,32 +55,34 @@
             border-bottom: 3px solid #000;
             padding-bottom: 5px;
             margin-bottom: 20px;
+            /* Ukuran font disesuaikan agar tetap terlihat baik di HP */
+            text-align: center;
         }
         .header-kop div {
             line-height: 1.2;
         }
         .header-kop .title-company {
-            font-size: 1.5rem; /* Ukuran PT. */
+            font-size: 1.25rem; /* Lebih kecil untuk HP */
             font-weight: 900;
         }
         .header-kop .subtitle-address {
-            font-size: 0.8rem;
+            font-size: 0.75rem; /* Lebih kecil untuk HP */
             color: #4b5563;
         }
         /* Styling untuk Kanvas Tanda Tangan Digital */
         .signature-canvas {
-            border: 1px solid #10b981; /* Border hijau untuk kanvas aktif */
+            border: 1px solid #10b981; 
             background-color: white;
-            touch-action: none; /* Mencegah scrolling pada perangkat sentuh saat menggambar */
+            touch-action: none; 
         }
         .signature-canvas-container {
             border-radius: 0.5rem;
             overflow: hidden;
             margin-top: 4px;
             position: relative;
-            /* Memastikan container kanvas memiliki lebar yang sesuai */
-            max-width: 150px; 
-            height: 150px;
+            /* Ukuran Kanvas 200x200 (FIX) */
+            max-width: 200px; 
+            height: 200px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -83,76 +90,52 @@
         .clear-sig-btn {
              margin-left: auto;
              margin-right: auto;
-             max-width: 150px;
+             max-width: 200px; 
              display: flex;
              justify-content: center;
         }
-        /* Style untuk Date Picker agar lebih responsif */
-        input[type="date"] {
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            cursor: pointer;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
-            border: 1px solid #d1d5db;
-        }
-        /* Style untuk Modal Notifikasi */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            max-width: 400px;
-            width: 90%;
-            animation: fadeIn 0.3s ease-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Media Query untuk Desktop/Layar Lebar */
+        @media (min-width: 640px) {
+             .header-kop .title-company {
+                font-size: 1.5rem; 
+            }
+            .header-kop .subtitle-address {
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
 
     <div id="app" class="min-h-screen p-4 sm:p-8">
-        <!-- Header Aplikasi (Hanya untuk tampilan web, tidak termasuk capture) -->
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-extrabold text-blue-800">APLIKASI PERMOHONAN IZIN</h1>
-            <div id="user-info" class="mt-4 text-sm text-gray-500">
+        <!-- Header Aplikasi (Disesuaikan untuk Mobile) -->
+        <header class="text-center mb-6 sm:mb-8">
+            <h1 class="text-3xl sm:text-4xl font-extrabold text-blue-800">APLIKASI IZIN</h1>
+            <div id="user-info" class="mt-2 sm:mt-4 text-sm text-gray-500">
                 <!-- User ID akan ditampilkan di sini setelah otentikasi -->
             </div>
         </header>
 
-        <!-- Container utama formulir (Ini akan di-capture untuk JPEG/PNG) -->
-        <div id="printable-form-container" class="max-w-4xl mx-auto bg-white rounded-xl overflow-hidden form-card p-6 sm:p-10">
+        <!-- Container utama formulir (Ini akan di-capture untuk PNG) -->
+        <!-- max-w-full pada mobile, max-w-4xl (800px) pada desktop/download -->
+        <div id="printable-form-container" class="max-w-full mx-auto bg-white rounded-xl overflow-hidden form-card p-5 sm:p-10">
             
             <!-- KOP SURAT -->
             <div class="header-kop text-center">
                 <div class="title-company">PT. EVEREST ELECTRONIC SALES & SERVICE</div>
                 <div class="text-xs text-gray-700 font-semibold mt-1">AIR CONDITIONER - SPARE PARTS</div>
-                <div class="subtitle-address text-xs mt-1">OFFICE: Jl. KH. Hasyim Ashari No. 144, Pinang-Cipondoh | Telp: (021) 7329480, 73453297, 73440020 - Fax: (021) 73440130</div>
+                <!-- Alamat dikurangi ukurannya agar muat di HP -->
+                <div class="subtitle-address text-xs mt-1">OFFICE: Jl. KH. Hasyim Ashari No. 144, Pinang-Cipondoh | Telp: (021) 7329480, ...</div>
             </div>
             
-            <!-- Judul Permohonan Izin (Sekarang di tengah) -->
-            <h2 class="text-2xl font-bold mb-6 text-blue-800 text-center border-b pb-2">PERMOHONAN IZIN TIDAK MASUK KERJA</h2>
+            <!-- Judul Permohonan Izin -->
+            <h2 class="text-xl sm:text-2xl font-bold mb-6 text-blue-800 text-center border-b pb-2">PERMOHONAN IZIN TIDAK MASUK KERJA</h2>
 
-            <form id="leave-request-form" class="space-y-6" novalidate>
+            <form id="leave-request-form" class="space-y-4 sm:space-y-6" novalidate>
                 <!-- Keterangan pembuka -->
                 <p class="text-sm text-gray-700 mb-4">Yang Bertanda Tangan dibawah ini :</p>
 
-                <!-- Bagian Data Karyawan -->
+                <!-- Bagian Data Karyawan (RESPONSIVE: 2 kolom di desktop, 1 kolom di HP) -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="flex flex-col">
                         <label for="nama" class="text-sm font-medium text-gray-700 required-label">Nama</label>
@@ -173,43 +156,44 @@
                 </div>
 
                 <!-- Bagian Jenis Izin -->
-                <h2 class="text-xl font-semibold mb-4 pt-4 text-blue-700 border-b pb-2" id="jenis-izin-heading">Mengajukan Permohonan Izin (Pilih satu *)</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="jenis-izin-options">
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                <h2 class="text-lg sm:text-xl font-semibold mb-4 pt-4 text-blue-700 border-b pb-2" id="jenis-izin-heading">Mengajukan Permohonan Izin (Pilih satu *)</h2>
+                <!-- RESPONSIVE: 2 kolom di HP, 3 kolom di Desktop -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4" id="jenis-izin-options">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Menikah" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Menikah</span>
+                        <span class="font-medium text-gray-700">Menikah</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Menikahkan Anak" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Menikahkan Anak</span>
+                        <span class="font-medium text-gray-700">Menikahkan Anak</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Menyunatkan/Membaptis Anak" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Menyunatkan / Membaptis Anak</span>
+                        <span class="font-medium text-gray-700">Menyunatkan / Membaptis Anak</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Istri Melahirkan/Keguguran" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Istri Melahirkan / Keguguran</span>
+                        <span class="font-medium text-gray-700">Istri Melahirkan / Keguguran</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Melahirkan" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Melahirkan</span>
+                        <span class="font-medium text-gray-700">Melahirkan</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Keguguran" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Keguguran</span>
+                        <span class="font-medium text-gray-700">Keguguran</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Kematian orang tua/mertua keluarga serumah" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Kematian orang tua / mertua keluarga serumah</span>
+                        <span class="font-medium text-gray-700">Kematian orang tua / mertua keluarga serumah</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Upacara Keagamaan" class="text-blue-600 focus:ring-blue-500">
-                        <span class="text-sm font-medium text-gray-700">Upacara Keagamaan</span>
+                        <span class="font-medium text-gray-700">Upacara Keagamaan</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-3 bg-red-50 rounded-lg cursor-pointer hover:bg-red-100 transition">
+                    <label class="flex items-center space-x-2 p-2 sm:p-3 bg-red-50 rounded-lg cursor-pointer hover:bg-red-100 transition text-sm">
                         <input type="radio" name="jenis_izin" value="Lain-Lain" class="text-red-600 focus:ring-red-500" id="radio-lain-lain">
-                        <span class="text-sm font-medium text-red-700">Lain - Lain</span>
+                        <span class="font-medium text-red-700">Lain - Lain</span>
                     </label>
                 </div>
 
@@ -219,7 +203,7 @@
                     <textarea id="alasan_lain" name="alasan_lain" rows="2" placeholder="Jelaskan alasan izin Anda secara rinci" class="mt-1 p-3 border border-red-300 rounded-lg focus:ring-red-500 focus:border-red-500"></textarea>
                 </div>
 
-                <!-- Bagian Durasi Izin -->
+                <!-- Bagian Durasi Izin (RESPONSIVE: 1 kolom di HP, 3 kolom di desktop) -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-gray-200">
                     <div class="flex flex-col">
                         <label for="tanggal_mulai" class="text-sm font-medium text-gray-700 required-label">Tanggal Izin Mulai</label>
@@ -235,8 +219,8 @@
                     </div>
                 </div>
 
-                <!-- Bagian Pengganti Karyawan dan Kontak -->
-                <h3 class="text-xl font-semibold mb-4 pt-4 text-blue-700 border-t pb-2">Pengganti Karyawan & Kontak Darurat</h3>
+                <!-- Bagian Pengganti Karyawan dan Kontak (RESPONSIVE: 1 kolom di HP, 2 kolom di desktop) -->
+                <h3 class="text-lg sm:text-xl font-semibold mb-4 pt-4 text-blue-700 border-t pb-2">Pengganti Karyawan & Kontak Darurat</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="flex flex-col">
                         <label for="pengganti_nama" class="text-sm font-medium text-gray-700">Nama Pengganti Karyawan (Opsional)</label>
@@ -266,17 +250,17 @@
                 
             </form>
             
-            <!-- BAGIAN TANDA TANGAN -->
+            <!-- BAGIAN TANDA TANGAN (RESPONSIVE: 1 kolom di HP, 3 kolom di desktop) -->
             <div id="signature-section" class="pt-8 mt-6 border-t border-gray-300">
-                <div class="grid grid-cols-3 gap-6 text-center text-sm font-medium text-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-center text-sm font-medium text-gray-700">
                     
                     <!-- Kolom 1: Diajukan Oleh (TANDA TANGAN KARYAWAN) -->
                     <div>
                         <p class="mb-1">Diajukan Oleh <span class="text-red-600 font-bold">*</span></p>
                         <p class="font-bold text-gray-900">Karyawan ybs</p>
                         <div class="signature-canvas-container">
-                            <!-- Kanvas Tanda Tangan Karyawan -->
-                            <canvas id="signature-canvas-karyawan" class="signature-canvas" width="150" height="150"></canvas>
+                            <!-- Kanvas Tanda Tangan Karyawan (200x200) -->
+                            <canvas id="signature-canvas-karyawan" class="signature-canvas" width="200" height="200"></canvas>
                         </div>
                         <button type="button" id="clear-signature-karyawan" class="mt-1 text-xs text-red-600 hover:text-red-700 clear-sig-btn">
                             <i class="ph ph-trash-simple text-sm mr-1"></i> Hapus
@@ -285,11 +269,11 @@
                     
                     <!-- Kolom 2: Disetujui Oleh (TANDA TANGAN MANAGEMENT) -->
                     <div>
-                        <p class="mb-1">Disetujui Oleh</p>
+                        <p class="mb-1 mt-6 md:mt-0">Disetujui Oleh</p>
                         <p class="font-bold text-gray-900">Management</p>
                         <div class="signature-canvas-container">
-                            <!-- Kanvas Tanda Tangan Management -->
-                            <canvas id="signature-canvas-management" class="signature-canvas" width="150" height="150"></canvas>
+                            <!-- Kanvas Tanda Tangan Management (200x200) -->
+                            <canvas id="signature-canvas-management" class="signature-canvas" width="200" height="200"></canvas>
                         </div>
                         <button type="button" id="clear-signature-management" class="mt-1 text-xs text-red-600 hover:text-red-700 clear-sig-btn">
                             <i class="ph ph-trash-simple text-sm mr-1"></i> Hapus
@@ -298,11 +282,11 @@
                     
                     <!-- Kolom 3: Diketahui Oleh (TANDA TANGAN ATASAN) -->
                     <div>
-                        <p class="mb-1">Diketahui Oleh</p>
+                        <p class="mb-1 mt-6 md:mt-0">Diketahui Oleh</p>
                         <p class="font-bold text-gray-900">Atasan</p>
                         <div class="signature-canvas-container">
-                            <!-- Kanvas Tanda Tangan Atasan -->
-                            <canvas id="signature-canvas-atasan" class="signature-canvas" width="150" height="150"></canvas>
+                            <!-- Kanvas Tanda Tangan Atasan (200x200) -->
+                            <canvas id="signature-canvas-atasan" class="signature-canvas" width="200" height="200"></canvas>
                         </div>
                         <button type="button" id="clear-signature-atasan" class="mt-1 text-xs text-red-600 hover:text-red-700 clear-sig-btn">
                             <i class="ph ph-trash-simple text-sm mr-1"></i> Hapus
@@ -388,6 +372,7 @@
         const DOWNLOAD_BUTTON = document.getElementById('download-button');
         const SUBMIT_BUTTON = document.getElementById('submit-button');
         const ACTION_BUTTONS_CONTAINER = document.getElementById('action-buttons-container');
+        const PRINTABLE_CONTAINER = document.getElementById('printable-form-container'); // Container untuk di-capture
         const CUSTOM_MODAL = document.getElementById('custom-modal');
         const CLOSE_MODAL_BUTTON = document.getElementById('close-modal-button');
 
@@ -544,7 +529,8 @@
                 CTX.lineJoin = 'round';
                 CTX.lineCap = 'round';
                 CTX.fillStyle = 'white';
-                CTX.fillRect(0, 0, CANVAS.width, CANVAS.height);
+                // Penting: Isi kanvas dengan warna putih agar hasil PNG tidak transparan
+                CTX.fillRect(0, 0, CANVAS.width, CANVAS.height); 
             }
             setupCanvas();
             
@@ -692,7 +678,7 @@
                  return;
             }
             
-            const container = document.getElementById('printable-form-container');
+            const container = PRINTABLE_CONTAINER;
             
             const sigReplacements = []; 
             
@@ -703,7 +689,8 @@
                 
                 // Buat placeholder IMG
                 const sigPlaceholder = document.createElement('img');
-                sigPlaceholder.src = signatureData || "https://placehold.co/150x150/f0f0f0/888?text=Tanda+Tangan+Kosong"; // Placeholder jika kosong
+                // Menggunakan ukuran 200x200 untuk placeholder
+                sigPlaceholder.src = signatureData || "https://placehold.co/200x200/f0f0f0/888?text=Tanda+Tangan+Kosong"; 
                 sigPlaceholder.width = pad.canvasElement.width;
                 sigPlaceholder.height = pad.canvasElement.height;
                 sigPlaceholder.className = 'w-full h-full';
@@ -730,14 +717,19 @@
             USER_INFO.style.display = 'none';
             MESSAGE_BOX.style.display = 'none';
             
-            // Tambahkan padding temporer agar hasil capture lebih rapi
-            container.style.padding = '2rem'; 
+            // Atur lebar container menjadi fixed 800px untuk hasil standar (Hanya jika sedang ditampilkan lebih lebar)
+            const originalMaxWidth = container.style.maxWidth;
+            const originalPadding = container.style.padding;
+            
+            container.style.maxWidth = '800px'; 
+            container.style.padding = '2.5rem'; // Padding konsisten untuk hasil cetak
+            container.classList.add('shadow-none'); // Hapus shadow saat capture
 
             showMessage("Memproses formulir menjadi gambar...", 'info');
 
             try {
                 const canvas = await html2canvas(container, {
-                    scale: 2, 
+                    scale: 2, // Kualitas gambar lebih tinggi
                     useCORS: true,
                     allowTaint: true, 
                     onclone: (clonedDocument) => {
@@ -745,7 +737,6 @@
                         clonedDocument.getElementById('action-buttons-container').style.display = 'none';
                         clonedDocument.getElementById('user-info').style.display = 'none';
                         clonedDocument.getElementById('message-box').style.display = 'none';
-                        // Menyembunyikan riwayat permohonan di cloned document
                         const requestsListContainer = clonedDocument.querySelector('.max-w-4xl.mx-auto.mt-10');
                         if (requestsListContainer) { requestsListContainer.style.display = 'none'; }
                     }
@@ -768,7 +759,7 @@
                 console.error("Gagal mengunduh gambar:", error);
                 showMessage("Gagal membuat gambar formulir. Error: " + error.message, 'error');
             } finally {
-                // Kembalikan semua kanvas
+                // Kembalikan semua kanvas dan style
                 sigReplacements.forEach(rep => {
                     rep.canvasContainer.removeChild(rep.placeholder);
                     rep.canvasElement.style.display = 'block';
@@ -782,7 +773,11 @@
                 ACTION_BUTTONS_CONTAINER.style.display = 'grid';
                 USER_INFO.style.display = 'block';
                 MESSAGE_BOX.style.display = 'block';
-                container.style.padding = '2.5rem';
+                
+                // Kembalikan style container ke kondisi semula (responsif)
+                container.style.maxWidth = originalMaxWidth;
+                container.style.padding = originalPadding;
+                container.classList.remove('shadow-none');
             }
         }
         
@@ -813,7 +808,6 @@
         }
 
         // --- Inisialisasi dan Event Listeners ---
-        // Catatan: initializeAppAndAuth() dan setupRealtimeListener() DINONAKTIFKAN SEMENTARA
         
         // Fungsi inisialisasi dummy untuk tampilan
         function initializeAppAndAuth() {
